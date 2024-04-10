@@ -33,6 +33,7 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.UpdateInBackground;
 import com.urswolfer.intellij.plugin.gerrit.GerritModule;
 import com.urswolfer.intellij.plugin.gerrit.GerritSettings;
 import org.jetbrains.annotations.NotNull;
@@ -48,7 +49,7 @@ import java.util.Map;
  * @author Urs Wolfer
  */
 @SuppressWarnings("ComponentNotRegistered") // proxy class below is registered
-public class ReviewActionGroup extends ActionGroup {
+public class ReviewActionGroup extends ActionGroup implements UpdateInBackground {
     private static final ImmutableMap<Integer, Icon> ICONS = ImmutableMap.of(
         -2, Cancel,
         -1, MoveDown,

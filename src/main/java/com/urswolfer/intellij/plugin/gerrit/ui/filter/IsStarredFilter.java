@@ -20,6 +20,7 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
+import com.intellij.openapi.actionSystem.UpdateInBackground;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nullable;
@@ -47,7 +48,7 @@ public class IsStarredFilter extends AbstractChangesFilter {
         return value ? "is:starred" : null;
     }
 
-    public final class IsStarredAction extends ToggleAction implements DumbAware {
+    public final class IsStarredAction extends ToggleAction implements DumbAware, UpdateInBackground {
         public IsStarredAction() {
             super("Starred changes", "Show only starred changes", AllIcons.Nodes.Favorite);
         }
