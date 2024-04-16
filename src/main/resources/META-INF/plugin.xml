@@ -90,6 +90,10 @@
           href="https://github.com/uwolfer/gerrit-intellij-plugin#pre-releases">
           https://github.com/uwolfer/gerrit-intellij-plugin#pre-releases</a>.</li>
 
+          <li>1.3.0</li>
+          <ul>
+            <li>improve compatiblity with IntelliJ 2024.1</li>
+          </ul>
           <li>1.2.9</li>
           <ul>
             <li>migrate away from deprecated IntelliJ API</li>
