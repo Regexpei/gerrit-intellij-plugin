@@ -67,6 +67,9 @@ public class GerritToolWindow {
 
     private GerritChangeDetailsPanel detailsPanel;
 
+    /**
+     * 创建工具窗口内容
+     */
     public SimpleToolWindowPanel createToolWindowContent(final Project project) {
         changeListPanel.setProject(project);
 
@@ -80,6 +83,7 @@ public class GerritToolWindow {
 
         JBSplitter detailsSplitter = new OnePixelSplitter(true, 0.6f);
         detailsSplitter.setSplitterProportionKey("Gerrit.ListDetailSplitter.Proportion");
+        // 列表
         detailsSplitter.setFirstComponent(changeListPanel);
 
         detailsPanel = new GerritChangeDetailsPanel(project);
@@ -90,11 +94,13 @@ public class GerritToolWindow {
             }
         });
         JPanel details = detailsPanel.getComponent();
+        // 列表下的详情
         detailsSplitter.setSecondComponent(details);
 
         JBSplitter horizontalSplitter = new OnePixelSplitter(false, 0.7f);
         horizontalSplitter.setSplitterProportionKey("Gerrit.DetailRepositoryChangeBrowser.Proportion");
         horizontalSplitter.setFirstComponent(detailsSplitter);
+        // 列表右侧的变更文件 Tree
         horizontalSplitter.setSecondComponent(repositoryChangesBrowser);
 
         panel.setContent(horizontalSplitter);
@@ -111,6 +117,9 @@ public class GerritToolWindow {
         return panel;
     }
 
+    /**
+     * 注册VCS仓库映射变化的监听器，当仓库映射变化时，会重新加载代码审查列表。
+     */
     private void registerVcsChangeListener(final Project project) {
         VcsRepositoryMappingListener vcsListener = new VcsRepositoryMappingListener() {
             @Override
@@ -121,6 +130,9 @@ public class GerritToolWindow {
         project.getMessageBus().connect().subscribe(VcsRepositoryManager.VCS_REPOSITORY_MAPPING_UPDATED, vcsListener);
     }
 
+    /**
+     * 在代码审查列表中选择一个代码审查时，显示该代码审查的详细信息
+     */
     private void changeSelected(ChangeInfo changeInfo, final Project project) {
         gerritUtil.getChangeDetails(changeInfo._number, project, new Consumer<ChangeInfo>() {
             @Override
@@ -130,10 +142,17 @@ public class GerritToolWindow {
         });
     }
 
+    /**
+     * 重新加载代码审查列表，可以通过参数决定是否在Gerrit设置不存在时请求设置
+     */
     public void reloadChanges(final Project project, boolean requestSettingsIfNonExistent) {
         getChanges(project, requestSettingsIfNonExistent, changeListPanel);
     }
 
+
+    /**
+     * 获取代码审查列表，根据Gerrit设置是否存在以及参数决定是否请求设置，并调用gerritUtil.getChangesForProject方法获取代码审查列表
+     */
     private void getChanges(Project project, boolean requestSettingsIfNonExistent, Consumer<LoadChangesProxy> consumer) {
         String apiUrl = gerritSettings.getHost();
         if (Strings.isNullOrEmpty(apiUrl)) {

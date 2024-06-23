@@ -68,8 +68,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A table with the list of changes.
- * Parts based on git4idea.ui.GitCommitListPanel
+ * 显示 Gerrit 代码审查系统的更改列表
+ * 部分基于 git4idea.ui.GitCommitListPanel
  *
  * @author Kirill Likhodedov
  * @author Urs Wolfer
@@ -103,41 +103,53 @@ public class GerritChangeListPanel extends JPanel implements Consumer<LoadChange
         this.table = new TableView<ChangeInfo>();
         table.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
+        // 右键弹出菜单
         PopupHandler.installPopupHandler(table, "Gerrit.ListPopup", ActionPlaces.UNKNOWN);
 
         updateModel(changes);
+        // 设置表格为斑马纹样式，即交替行颜色不同，以便于阅读和区分。
         table.setStriped(true);
 
         setLayout(new BorderLayout());
         scrollPane = ScrollPaneFactory.createScrollPane(table);
-        scrollPane.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
-            @Override
-            public void adjustmentValueChanged(AdjustmentEvent e) {
-                if (!loadingMoreChanges && loadChangesProxy != null) {
-                    loadingMoreChanges = true;
-                    try {
-                        int lowerEnd = e.getAdjustable().getVisibleAmount() + e.getAdjustable().getValue();
-                        if (lowerEnd == e.getAdjustable().getMaximum()) {
-                            loadChangesProxy.getNextPage(new Consumer<List<ChangeInfo>>() {
-                                @Override
-                                public void consume(List<ChangeInfo> changeInfos) {
-                                    addChanges(changeInfos);
-                                }
-                            });
+            // 滚动面板监听事件，当滚动条发生调整，根据滚动位置加载更多内容
+            scrollPane.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+                @Override
+                public void adjustmentValueChanged(AdjustmentEvent e) {
+                    if (!loadingMoreChanges && loadChangesProxy != null) {
+                        loadingMoreChanges = true;
+                        try {
+                            // 计算滚动条的下边界
+                            int lowerEnd = e.getAdjustable().getVisibleAmount() + e.getAdjustable().getValue();
+                            // 判断下边界是否达到滚动条的最大值，即是否需要加载更多数据
+                            if (lowerEnd == e.getAdjustable().getMaximum()) {
+                                // 请求加载下一页数据
+                                loadChangesProxy.getNextPage(new Consumer<List<ChangeInfo>>() {
+                                    @Override
+                                    public void consume(List<ChangeInfo> changeInfos) {
+                                        // 处理加载的更改信息
+                                        addChanges(changeInfos);
+                                    }
+                                });
+                            }
+                        } finally {
+                            // 确保加载更多更改的状态被重置
+                            loadingMoreChanges = false;
                         }
-                    } finally {
-                        loadingMoreChanges = false;
+
                     }
                 }
-            }
-        });
-        add(scrollPane);
+            });
+            add(scrollPane);
     }
 
     public void setProject(Project project) {
         this.project = project;
     }
 
+    /**
+     * 接收和处理加载更改的代理
+     */
     @Override
     public void consume(LoadChangesProxy proxy) {
         loadChangesProxy = proxy;
@@ -150,6 +162,9 @@ public class GerritChangeListPanel extends JPanel implements Consumer<LoadChange
         });
     }
 
+    /**
+     * 设置当表格为空时显示的提示信息，包括一个链接，可以打开浏览器访问相关配置信息。
+     */
     private void setupEmptyTableHint() {
         StatusText emptyText = table.getEmptyText();
         emptyText.clear();
@@ -182,10 +197,11 @@ public class GerritChangeListPanel extends JPanel implements Consumer<LoadChange
     }
 
     /**
-     * Adds a listener that would be called once user selects a change in the table.
+     * 添加监听器，当用户选中时，将更改信息传递给监听器。
      */
     public void addListSelectionListener(final @NotNull Consumer<ChangeInfo> listener) {
         table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
             public void valueChanged(final ListSelectionEvent e) {
                 ListSelectionModel lsm = (ListSelectionModel) e.getSource();
                 int i = lsm.getMaxSelectionIndex();

@@ -90,11 +90,12 @@ public class RepositoryChangesBrowserProvider {
 
         TableView<ChangeInfo> table = changeListPanel.getTable();
 
+        // 创建 Gerrit 变更浏览器
         final GerritRepositoryChangesBrowser changesBrowser = new GerritRepositoryChangesBrowser(project);
         changesBrowser.getDiffAction().registerCustomShortcutSet(CommonShortcuts.getDiff(), table);
         changesBrowser.getViewerScrollPane().setBorder(IdeBorderFactory.createBorder(SideBorder.LEFT | SideBorder.TOP));
         changesBrowser.setChangeNodeDecorator(changesBrowser.getChangeNodeDecorator());
-
+        // 变更列表添加选择监听事件
         changeListPanel.addListSelectionListener(new Consumer<ChangeInfo>() {
             @Override
             public void consume(ChangeInfo changeInfo) {
@@ -143,6 +144,7 @@ public class RepositoryChangesBrowserProvider {
 
         protected void setSelectedChange(ChangeInfo changeInfo) {
             selectedChange = changeInfo;
+            // 通过 change 的序号获取文件列表
             gerritUtil.getChangeDetails(changeInfo._number, project, new Consumer<ChangeInfo>() {
                 @Override
                 public void consume(ChangeInfo changeDetails) {
